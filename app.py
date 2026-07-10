@@ -28,22 +28,28 @@ if img_file_buffer is not None:
     bytes_data = img_file_buffer.getvalue()
     cv2_img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
     
-    # 전처리 
+    # 1. 크기 조절 및 색상 변환 (BGR -> RGB)
     resized_img = cv2.resize(cv2_img, (224, 224))
     resized_img = cv2.cvtColor(resized_img, cv2.COLOR_BGR2RGB)
     
-    # 💡 [수정] / 255.0 정규화를 빼고, 일반 정밀도 변환만 시도해봅니다.
-    normalized_img = resized_img.astype(np.float32) 
-    input_data = np.expand_dims(normalized_img, axis=0)
+    # 2. 0~1 사이로 정규화
+    normalized_img = resized_img.astype(np.float32) / 255.0
+    
+    # 3. 💡 [핵심 수정] 파이토치 스타일로 차원 순서 변경 (HWC -> CHW)
+    # (224, 224, 3) 이었던 이미지를 (3, 224, 224)로 뒤집어줍니다.
+    chw_img = np.transpose(normalized_img, (2, 0, 1))
+    
+    # 4. 배치 차원 추가 (3, 224, 224) -> (1, 3, 224, 224)
+    input_data = np.expand_dims(chw_img, axis=0)
     
     # ONNX 인프런스 실행
     input_name = ort_session.get_inputs()[0].name
     prediction = ort_session.run(None, {input_name: input_data})
     
-    # 결과 출력 (확률 디버깅을 위해 생 예측값도 살짝 띄웁니다)
+    # 결과 추출 및 출력
     result = prediction[0][0][0]
     
-    # 디버깅용 메시지 (인공지능의 진짜 속마음 숫자를 확인)
+    # 디버깅용 실시간 생 출력값 확인
     st.write(f"🤖 모델의 내부 출력값(raw): {result:.4f}")
     
     if result > 0.5:
