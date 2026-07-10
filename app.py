@@ -28,9 +28,13 @@ img_file_buffer = st.camera_input("눈을 떴다 감았다 하며 테스트해�
 if img_file_buffer is not None:
     bytes_data = img_file_buffer.getvalue()
     cv2_img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
-    
     # 전처리 (ONNX 모델의 입력 형태에 맞게 조정)
-    resized_img = cv2.resize(cv2_img, (224, 224))
+resized_img = cv2.resize(cv2_img, (224, 224))
+
+# 💡 [여기에 이 한 줄을 새로 삽입해 주세요!] 
+resized_img = cv2.cvtColor(resized_img, cv2.COLOR_BGR2RGB)
+
+normalized_img = resized_img.astype(np.float32) / 255.0
     normalized_img = resized_img.astype(np.float32) / 255.0
     input_data = np.expand_dims(normalized_img, axis=0)
     
