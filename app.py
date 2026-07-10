@@ -14,7 +14,7 @@ def load_onnx_model():
     model_path = 'eye_model.onnx'
     if not os.path.exists(model_path):
         with st.spinner("구글 드라이브에서 초경량 인공지능을 가져오는 중..."):
-            file_id = '1L_-Q-JcYxwp5w4VVR6ubgiEjc--mmeDG'  # <--- 주신 스크린샷 속 ID로 넣어두었습니다.
+            file_id = '1L_-Q-JcYxwp5w4VVR6ubgiEjc--mmeDG'
             url = f"https://docs.google.com/uc?export=download&id={file_id}"
             urllib.request.urlretrieve(url, model_path)
     return ort.InferenceSession(model_path)
@@ -28,18 +28,24 @@ if img_file_buffer is not None:
     bytes_data = img_file_buffer.getvalue()
     cv2_img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
     
-    # 전처리 (들여쓰기 및 BGR->RGB 색상 버그 전면 수정 완료)
+    # 전처리 
     resized_img = cv2.resize(cv2_img, (224, 224))
     resized_img = cv2.cvtColor(resized_img, cv2.COLOR_BGR2RGB)
-    normalized_img = resized_img.astype(np.float32) / 255.0
+    
+    # 💡 [수정] / 255.0 정규화를 빼고, 일반 정밀도 변환만 시도해봅니다.
+    normalized_img = resized_img.astype(np.float32) 
     input_data = np.expand_dims(normalized_img, axis=0)
     
     # ONNX 인프런스 실행
     input_name = ort_session.get_inputs()[0].name
     prediction = ort_session.run(None, {input_name: input_data})
     
-    # 결과 출력 (이 뒷부분도 지워지면 안 돼서 다 챙겨왔습니다!)
+    # 결과 출력 (확률 디버깅을 위해 생 예측값도 살짝 띄웁니다)
     result = prediction[0][0][0]
+    
+    # 디버깅용 메시지 (인공지능의 진짜 속마음 숫자를 확인)
+    st.write(f"🤖 모델의 내부 출력값(raw): {result:.4f}")
+    
     if result > 0.5:
         st.success(f"🟢 안전 상태 : 눈을 뜨고 있습니다! (확률: {result*100:.1f}%)")
     else:
