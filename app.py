@@ -14,7 +14,7 @@ def load_onnx_model():
     model_path = 'eye_model.onnx'
     if not os.path.exists(model_path):
         with st.spinner("구글 드라이브에서 초경량 인공지능을 가져오는 중..."):
-            file_id = '1L_-Q-JcYxwp5w4VVR6ubgiEjc--mmeDG'
+            file_id = '1h6i6gW7mO4W8tUomBqZt9jO6F2aT2mUa'
             url = f"https://docs.google.com/uc?export=download&id={file_id}"
             urllib.request.urlretrieve(url, model_path)
     return ort.InferenceSession(model_path)
