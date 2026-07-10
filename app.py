@@ -17,7 +17,7 @@ def load_model():
     if not os.path.exists(model_path):
         with st.spinner("구글 드라이브 창고에서 대용량 인공지능 모델을 가져오는 중입니다... (최초 1회만 실행됩니다)"):
             # 구글 드라이브 ID 입력 부분
-            file_id = '1O-N7Tu51f_YAzVFGvw7u3wuiUtaXBlYk'
+            file_id = '1L_-Q-JcYxwp5w4VVR6ubgiEjc--mmeDG'
             url = f"https://docs.google.com/uc?export=download&id={file_id}"
             urllib.request.urlretrieve(url, model_path)
     return tf.keras.models.load_model(model_path)
