@@ -48,8 +48,8 @@ if img_file_buffer is not None:
     # 디버깅용 실시간 생 출력값 확인
     st.write(f"🤖 모델의 내부 출력값(raw): {result:.4f}")
     
-   # 기존 if result > 0.5: 를 아래처럼 0.5보다 작을 때로 바꿔봅니다.
-    if result < 0.5:  
-        st.success(f"🟢 안전 상태 : 눈을 뜨고 있습니다!")
+# 부등호를 다시 원래대로 (> 0.5) 복구해 둡니다.
+    if result > 0.5:
+        st.success(f"🟢 안전 상태 : 눈을 뜨고 있습니다! (확률: {result*100:.1f}%)")
     else:
-        st.error(f"🔴 졸음 경고 : 눈을 감고 계십니다!!")
+        st.error(f"🔴 졸음 경고 : 눈을 감고 계십니다!! (확률: {(1-result)*100:.1f}%)")
