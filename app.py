@@ -28,19 +28,15 @@ if img_file_buffer is not None:
     bytes_data = img_file_buffer.getvalue()
     cv2_img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
     
-    # 1. 크기 조절 및 색상 변환 (BGR -> RGB)
+    # 1. 크기 조절 및 색상 변환
     resized_img = cv2.resize(cv2_img, (224, 224))
     resized_img = cv2.cvtColor(resized_img, cv2.COLOR_BGR2RGB)
     
-    # 2. 0~1 사이로 정규화
+    # 2. 정규화 복구 (0~1 범위로 조정)
     normalized_img = resized_img.astype(np.float32) / 255.0
     
-    # 3. 💡 [핵심 수정] 파이토치 스타일로 차원 순서 변경 (HWC -> CHW)
-    # (224, 224, 3) 이었던 이미지를 (3, 224, 224)로 뒤집어줍니다.
-    chw_img = np.transpose(normalized_img, (2, 0, 1))
-    
-    # 4. 배치 차원 추가 (3, 224, 224) -> (1, 3, 224, 224)
-    input_data = np.expand_dims(chw_img, axis=0)
+    # 3. 차원 순서는 텐서플로 형태(1, 224, 224, 3) 유지
+    input_data = np.expand_dims(normalized_img, axis=0)
     
     # ONNX 인프런스 실행
     input_name = ort_session.get_inputs()[0].name
